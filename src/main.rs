@@ -13,13 +13,10 @@ use winit::window::{Window, WindowId};
 use renderer::{DrawCommand, RenderTarget, Renderer, SoftwareRenderer, math::Vec2, CullMode, Viewport, Framebuffer, Mesh, Vertex, Camera};
 use renderer::math::{Matrix4, Vec3, Vec4};
 
-const SIZE: i32 = 20;
-const STEP: f32 = 1.0;
+const MODEL: &str = include_str!("../assets/cube.obj");
+
 fn main() -> anyhow::Result<()> {
-    let model = Mesh::from_file("assets/cube.obj")?;
-
-    println!("{:?}", model);
-
+    let model = Mesh::parse(MODEL)?;
 
     let world = World {
         camera: Camera {
@@ -106,7 +103,7 @@ impl ApplicationHandler for App {
         let pixels = Pixels::new(self.viewport.width(), self.viewport.height(), surface_texture).expect("failed to create pixels");
 
         let size = window.inner_size();
-        let center = winit::dpi::PhysicalPosition::new(size.width as f32 / 2.0, size.height as f32 / 2.0);
+        let center = PhysicalPosition::new(size.width as f32 / 2.0, size.height as f32 / 2.0);
 
         window.set_cursor_visible(false);
         let _ = window.set_cursor_position(center);
@@ -199,8 +196,6 @@ impl ApplicationHandler for App {
 
                 pixels.render().expect("failed to render pixels");
                 self.window.as_ref().unwrap().request_redraw();
-
-                // println!("took {:?}ms to render frame", now.elapsed().as_millis());
             }
             WindowEvent::CursorMoved { position, .. } => {
                 let (x, y) = (position.x as f32, position.y as f32);
